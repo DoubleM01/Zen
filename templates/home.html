@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Chatbot</title>
+    <!-- Add marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-container {
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        /* Markdown styles */
+        .message h1, .message h2, .message h3 {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .message p {
+            margin: 0.5em 0;
+        }
+        .message pre {
+            background-color: #f8f8f8;
+            padding: 0.5em;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        .message code {
+            background-color: #f8f8f8;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        .message ul, .message ol {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+        .message blockquote {
+            margin: 0.5em 0;
+            padding-left: 1em;
+            border-left: 3px solid #ccc;
+            color: #666;
+        }
+        #message-form {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Chatbot</h1>
+    <div id="chat-container"></div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+let sseBuffer = "";
+
+function processChunk(chunk) {
+  // 1. Append new data
+  sseBuffer += chunk;
+
+  // 2. Split on SSE event boundary
+  const parts = sseBuffer.split("\n\n");
+  // The last part may be incomplete—keep it in the buffer
+  sseBuffer = parts.pop();
+
+  // 3. Process each complete event
+  for (const part of parts) {
+    // e.g. part === "data: Hello"\n or multiple lines if extended
+    const lines = part.split("\n");
+    for (const line of lines) {
+      if (line.startsWith("data:")) {
+        const data = line.replace(/^data:\s*/, " ");
+        
+        if (data === " [DONE]") {
+          // Stream finished
+          onStreamDone();
+        } else {
+          // A new token from the LLM
+          onNewToken(data);
+        }
+      }
+    }
+  }
+}
+
+// callback
+function onNewToken(token) {
+  // e.g. append to a div or chat window
+  
+    const test_ds = document.querySelectorAll('.message.bot-message');
+    const test_d = test_ds[test_ds.length - 1];
+    test_d.textContent  += token;
+}
+function onStreamDone() {
+  console.log("Stream complete");
+  // get last element of class 'message bot-message'
+  const test_ds = document.querySelectorAll('.message.bot-message');
+  const test_d = test_ds[test_ds.length - 1];
+  test_d.innerHTML = marked.parse(test_d.textContent);
+  test_d.textContent = test_d.textContent.replaceAll("**",  "").replaceAll(".",  "\n").replaceAll(":",  "\n").replaceAll('’ ',"’");
+  sseBuffer = "";
+  
+}
+
+            try {
+                // const response = await fetch('/chat', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({ message: message }),
+                // });
+                const res = await fetch("/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "text/event-stream"
+  },
+  body: JSON.stringify({message: message})
+});
+addMessage(" ", 'bot');
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let done = false;
+while (!done) {
+  const {value, done: d} = await reader.read();
+  done = d;
+  const chunk = decoder.decode(value);
+  // parse “data: …\n\n” chunks or handle raw tokens
+  
+  processChunk(chunk);
+  // addMessage(chunk, 'bot');
+}
+                // const data = await response.json();
+                // // Add bot response to chat
+                // addMessage(data.response, 'bot');
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, something went wrong.', 'bot');
+            }
+        });
+
+        function addMessage(message, sender) {
+            //if (sseBuffer ==""){
+            const messageDiv = document.createElement('div' , id=`${sender}-message`) ;
+            messageDiv.classList.add('message', `${sender}-message`);
+           // }
+            // Use marked.js to parse markdown for bot messages, plain text for user messages
+            if (sender === 'bot') {
+                messageDiv.innerHTML = marked.parse(message);
+            } else {
+                messageDiv.textContent = message;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
+
