@@ -1,94 +1,466 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Chatbot</title>
-    <!-- Add marked.js for markdown parsing -->
+    <title>Wellness & Fitness AI Assistant</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        :root {
+            --primary-color: #7FB069;
+            --secondary-color: #E6EFE9;
+            --accent-color: #98C9A3;
+            --text-color: #2C3E50;
+            --light-gray: #F5F7FA;
         }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #FFFFFF;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--secondary-color), #ffffff);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--text-color);
+            font-weight: 300;
+            margin-top: 0.5rem;
+        }
+
         #chat-container {
-            height: 400px;
-            border: 1px solid #ccc;
+            height: 60vh;
+            border: none;
             padding: 20px;
             overflow-y: auto;
             margin-bottom: 20px;
+            background-color: var(--light-gray);
+            border-radius: 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
         }
+
         .message {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .user-message {
-            background-color: #e3f2fd;
-            margin-left: 20%;
+            background-color: var(--primary-color);
+            color: white;
+            margin-left: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .bot-message {
-            background-color: #f5f5f5;
-            margin-right: 20%;
+            background-color: var(--secondary-color);
+            margin-right: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        /* Markdown styles */
-        .message h1, .message h2, .message h3 {
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
-        }
-        .message p {
-            margin: 0.5em 0;
-        }
+
         .message pre {
-            background-color: #f8f8f8;
-            padding: 0.5em;
-            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
             overflow-x: auto;
         }
+
         .message code {
-            background-color: #f8f8f8;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 0.2em 0.4em;
-            border-radius: 3px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
         }
-        .message ul, .message ol {
-            margin: 0.5em 0;
-            padding-left: 1.5em;
-        }
-        .message blockquote {
-            margin: 0.5em 0;
-            padding-left: 1em;
-            border-left: 3px solid #ccc;
-            color: #666;
-        }
+
         #message-form {
             display: flex;
-            gap: 10px;
+            gap: 1rem;
+            margin-top: 2rem;
         }
+
         #message-input {
             flex-grow: 1;
-            padding: 10px;
+            padding: 1rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 25px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
+
+        #message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.2);
+        }
+
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 1rem 2rem;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
         }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .location-button {
+            background-color: var(--accent-color);
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        /* Wellness-specific elements */
+        .wellness-quote {
+            text-align: center;
+            font-style: italic;
+            color: var(--text-color);
+            margin: 2rem 0;
+            font-weight: 300;
+        }
+
+        .message blockquote {
+            border-left: 4px solid var(--accent-color);
+            margin: 1rem 0;
+            padding-left: 1rem;
+            font-style: italic;
+        }
+        
+        .message button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+        
+        .message button:hover {
+            background-color: #388E3C;
+        }
+
+        /* Scrollbar styling */
+        #chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-container::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        #chat-container::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            #message-form {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        .map-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--secondary-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .map-controls {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .map-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .map-button:hover {
+            background-color: var(--primary-color);
+        }
+
+        .location-info {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .gym-results {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gym-item {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gym-item:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .gym-name {
+            font-weight: 500;
+        }
+
+        .gym-location {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .show-on-map, .preview-route {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .show-on-map:hover, .preview-route:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .preview-route {
+            background-color: #4CAF50;
+        }
+        
+        .preview-route:hover {
+            background-color: #388E3C;
+        }
+        
+        .map-button.primary {
+            background-color: var(--primary-color);
+        }
+        
+        .map-button.primary:hover {
+            background-color: #6a9558;
+        }
+        
+        .gym-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .shortest-gym {
+            background-color: #ffeb3b;
+            color: #333;
+            border: 2px solid #ffc107;
+        }
+        
+        /* Activity Prediction Styles */
+        .prediction-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--secondary-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .prediction-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .prediction-button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .prediction-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        .prediction-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .prediction-status {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .prediction-history {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-item {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:nth-child(odd) {
+            background-color: #f0f5f2;
+        }
+        
+        .activity-walking { background-color: #c8e6c9; }
+        .activity-sitting { background-color: #ffecb3; }
+        .activity-standing { background-color: #bbdefb; }
+        .activity-laying { background-color: #d1c4e9; }
+        .activity-walking-upstairs { background-color: #b2dfdb; }
+        .activity-walking-downstairs { background-color: #f8bbd0; }
     </style>
 </head>
 <body>
-    <h1>AI Chatbot</h1>
+    <div class="header">
+        <h1>Wellness & Fitness Assistant</h1>
+        <p class="subtitle">Your companion for a healthier mind and body</p>
+    </div>
+
+    <div class="wellness-quote">
+        "The journey of a thousand miles begins with a single step" - Lao Tzu
+    </div>
+    
+    <!-- Activity Prediction Section -->
+    <div class="prediction-container">
+        <h2>Activity Recognition</h2>
+        <div class="prediction-controls">
+            <button id="start-predictions" class="prediction-button">Start Activity Predictions</button>
+            <button id="stop-predictions" class="prediction-button" disabled>Stop</button>
+        </div>
+        <div class="prediction-status">
+            <p><strong>Status:</strong> <span id="prediction-status">Idle</span></p>
+            <p><strong>Current Row:</strong> <span id="current-row">-</span></p>
+            <p><strong>Current Activity:</strong> <span id="current-activity">-</span></p>
+            <p><strong>Calories Burned:</strong> <span id="calories-burned">-</span> kcal</p>
+        </div>
+        <div class="prediction-history" id="prediction-history">
+            <h3>Prediction History</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <h2>Track Your Location</h2>
+        <div id="map"></div>
+        <div class="map-controls">
+            <button class="map-button" onclick="locateUser()">Locate Me</button>
+            <button class="map-button" onclick="findNearestGym()">Find Nearest Gym</button>
+            <button class="map-button primary" onclick="selectShortestGym()" id="select-shortest-gym" style="display: none;">Select Shortest Gym</button>
+            <button class="map-button" onclick="showAllRoutes()" id="show-all-routes" style="display: none;">Preview All Routes</button>
+        </div>
+        <div class="location-info" id="location-info">
+            <p><strong>Latitude:</strong> <span id="latitude"></span></p>
+            <p><strong>Longitude:</strong> <span id="longitude"></span></p>
+        </div>
+        <div class="gym-results" id="gym-results" style="display: none;">
+            <h3>Nearby Gyms</h3>
+            <div id="gym-list"></div>
+        </div>
+    </div>
     <div id="chat-container"></div>
+    
     <form id="message-form">
-        <input type="text" id="message-input" placeholder="Type your message..." required>
+        <input type="text" 
+               id="message-input" 
+               placeholder="Ask about fitness, meditation, or wellness..." 
+               required>
         <button type="submit">Send</button>
     </form>
-
     <script>
         const chatContainer = document.getElementById('chat-container');
         const messageForm = document.getElementById('message-form');
@@ -147,7 +519,7 @@ function onStreamDone() {
   const test_ds = document.querySelectorAll('.message.bot-message');
   const test_d = test_ds[test_ds.length - 1];
   test_d.innerHTML = marked.parse(test_d.textContent);
-  test_d.textContent = test_d.textContent.replaceAll("**",  "").replaceAll(".",  "\n").replaceAll(":",  "\n").replaceAll('’ ',"’");
+  test_d.textContent = test_d.textContent.replaceAll("Final Answer: ",  "");
   sseBuffer = "";
   
 }
@@ -206,6 +578,524 @@ while (!done) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
+    <button onclick="sendLocation()" class="location-button">Share Location for Local Wellness Resources</button>
+
+    <script>
+        async function sendLocation() {
+          if (!navigator.geolocation) {
+            alert("Geolocation not supported");
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            const resp = await fetch('/report_location', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lat, lon })
+            });
+            const data = await resp.json();
+            console.log("Server received:", data);
+          }, err => alert("Permission denied or unavailable"));
+        }
+      </script>
+      <script>
+        // Initialize the map
+        const map = L.map('map').setView([0, 0], 13); // Default view
+    
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        // Marker for the user's location
+        let userMarker;
+        // Array to store gym markers
+        let gymMarkers = [];
+    
+        // Function to locate the user
+        function locateUser() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+    
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+    
+                    // Update map view and marker
+                    map.setView([latitude, longitude], 13);
+                    if (userMarker) {
+                        userMarker.setLatLng([latitude, longitude]);
+                    } else {
+                        userMarker = L.marker([latitude, longitude]).addTo(map);
+                        userMarker.bindPopup("Your Location").openPopup();
+                    }
+    
+                    // Update location info
+                    document.getElementById('latitude').textContent = latitude.toFixed(6);
+                    document.getElementById('longitude').textContent = longitude.toFixed(6);
+                    document.getElementById('location-info').style.display = 'block';
+                },
+                (error) => {
+                    alert("Unable to retrieve your location.");
+                    console.error(error);
+                }
+            );
+        }
+
+        // Function to find nearest gym
+        function findNearestGym() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude: lat, longitude: lon } = position.coords;
+                    
+                    // First, ensure the user location is shown
+                    if (!userMarker) {
+                        map.setView([lat, lon], 13);
+                        userMarker = L.marker([lat, lon]).addTo(map);
+                        userMarker.bindPopup("Your Location").openPopup();
+                        
+                        // Update location info
+                        document.getElementById('latitude').textContent = lat.toFixed(6);
+                        document.getElementById('longitude').textContent = lon.toFixed(6);
+                        document.getElementById('location-info').style.display = 'block';
+                    }
+                    
+                    try {
+                        // Show loading state
+                        document.getElementById('gym-list').innerHTML = '<p>Searching for nearby gyms...</p>';
+                        document.getElementById('gym-results').style.display = 'block';
+                        
+                        // Make API request
+                        const response = await fetch('/report_location', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ lat, lon })
+                        });
+                        
+                        const data = await response.json();
+                        console.log("Server received:", data);
+                        
+                        // Clear previous gym markers
+                        gymMarkers.forEach(marker => map.removeLayer(marker));
+                        gymMarkers = [];
+                        
+                        // Process and display gym results
+                        if (data.gyms && data.gyms.length > 0) {
+                            const gymListElement = document.getElementById('gym-list');
+                            gymListElement.innerHTML = '';
+                            
+                            // Show the "Select Shortest Gym" button if we have gyms with distance data
+                            const selectShortestButton = document.getElementById('select-shortest-gym');
+                            const showAllRoutesButton = document.getElementById('show-all-routes');
+                            if (data.gyms[0].distance !== undefined) {
+                                selectShortestButton.style.display = 'block';
+                                showAllRoutesButton.style.display = 'block';
+                            } else {
+                                selectShortestButton.style.display = 'none';
+                                showAllRoutesButton.style.display = 'none';
+                            }
+                            
+                            // Store the gyms data globally for use in selectShortestGym function
+                            window.gymsData = data.gyms;
+                            
+                            data.gyms.forEach((gym, index) => {
+                                // Handle both old and new data formats
+                                let name, gymLat, gymLon, distance, walkingTime;
+                                
+                                if (typeof gym === 'object' && gym.name) {
+                                    // New format (object with properties)
+                                    name = gym.name;
+                                    gymLat = gym.lat;
+                                    gymLon = gym.lon;
+                                    distance = gym.distance;
+                                    walkingTime = gym.walking_time;
+                                } else if (Array.isArray(gym)) {
+                                    // Old format (array)
+                                    name = gym[0];
+                                    gymLat = gym[1];
+                                    gymLon = gym[2];
+                                    // Check if we have distance and walking time
+                                    if (gym.length >= 5) {
+                                        distance = gym[3];
+                                        walkingTime = gym[4];
+                                    }
+                                }
+                                
+                                // Add marker to map
+                                const gymMarker = L.marker([gymLat, gymLon]).addTo(map);
+                                let popupContent = `<strong>${name}</strong><br>`;
+                                
+                                if (distance !== undefined && walkingTime !== undefined) {
+                                    popupContent += `Distance: ${distance}m<br>Walking time: ${walkingTime} min`;
+                                } else {
+                                    popupContent += `Lat: ${gymLat}<br>Lon: ${gymLon}`;
+                                }
+                                
+                                gymMarker.bindPopup(popupContent);
+                                gymMarkers.push(gymMarker);
+                                
+                                // Add to list
+                                const gymItem = document.createElement('div');
+                                gymItem.className = 'gym-item';
+                                if (index === 0 && distance !== undefined) {
+                                    gymItem.classList.add('shortest-gym');
+                                }
+                                
+                                let locationInfo = '';
+                                if (distance !== undefined && walkingTime !== undefined) {
+                                    locationInfo = `Distance: ${distance}m (${walkingTime} min)`;
+                                } else {
+                                    locationInfo = `Lat: ${gymLat}, Lon: ${gymLon}`;
+                                }
+                                
+                                gymItem.innerHTML = `
+                                <div>
+                                    <div class="gym-name">${name || 'Unnamed Gym'}</div>
+                                    <div class="gym-location">${locationInfo}</div>
+                                </div>
+                                <div class="gym-buttons">
+                                    <button class="show-on-map" onclick="showGymOnMap(${gymLat}, ${gymLon}, '${name.replace(/'/g, "\\'")}')">Show on Map</button>
+                                    <button class="preview-route" onclick="previewRoute('${name.replace(/'/g, "\\'")}')">Preview Route</button>
+                                </div>
+                                `;
+                                gymListElement.appendChild(gymItem);
+                            });
+                            
+                            // Adjust map to show all markers
+                            const group = new L.featureGroup([userMarker, ...gymMarkers]);
+                            map.fitBounds(group.getBounds().pad(0.1));
+                        } else {
+                            document.getElementById('gym-list').innerHTML = '<p>No gyms found nearby.</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error finding gyms:', error);
+                        document.getElementById('gym-list').innerHTML = '<p>Error finding nearby gyms. Please try again.</p>';
+                    }
+                },
+                (error) => {
+                    alert("Unable to retrieve your location.");
+                    console.error(error);
+                }
+            );
+        }
+        
+        // Function to show a specific gym on the map
+        function showGymOnMap(lat, lon, name) {
+            map.setView([lat, lon], 15);
+            
+            // Find the marker and open its popup
+            gymMarkers.forEach(marker => {
+                const markerLatLng = marker.getLatLng();
+                if (markerLatLng.lat === lat && markerLatLng.lng === lon) {
+                    marker.openPopup();
+                }
+            });
+        }
+        
+        // Function to select the shortest gym
+        function selectShortestGym() {
+            if (!window.gymsData || window.gymsData.length === 0) {
+                alert("No gyms found. Please search for gyms first.");
+                return;
+            }
+            
+            // Find the gym with the shortest distance
+            let shortestGym = null;
+            let shortestDistance = Infinity;
+            
+            window.gymsData.forEach(gym => {
+                let distance;
+                
+                if (typeof gym === 'object' && gym.distance !== undefined) {
+                    distance = gym.distance;
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        shortestGym = gym;
+                    }
+                } else if (Array.isArray(gym) && gym.length >= 5) {
+                    distance = gym[3];
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        shortestGym = {
+                            name: gym[0],
+                            lat: gym[1],
+                            lon: gym[2],
+                            distance: gym[3],
+                            walking_time: gym[4]
+                        };
+                    }
+                }
+            });
+            
+            if (shortestGym) {
+                // Show the shortest gym on the map
+                const lat = typeof shortestGym.lat === 'number' ? shortestGym.lat : parseFloat(shortestGym.lat);
+                const lon = typeof shortestGym.lon === 'number' ? shortestGym.lon : parseFloat(shortestGym.lon);
+                const name = shortestGym.name;
+                const distance = shortestGym.distance;
+                const walkingTime = shortestGym.walking_time;
+                
+                // Zoom to the shortest gym
+                map.setView([lat, lon], 15);
+                
+                // Find and open the popup for the shortest gym
+                gymMarkers.forEach(marker => {
+                    const markerLatLng = marker.getLatLng();
+                    if (Math.abs(markerLatLng.lat - lat) < 0.0001 && Math.abs(markerLatLng.lng - lon) < 0.0001) {
+                        marker.openPopup();
+                    }
+                });
+                
+                // Display information about the shortest gym
+                const message = `The shortest gym is ${name}, which is ${distance}m away and would take approximately ${walkingTime} minutes to walk to.`;
+                alert(message);
+                
+                // Add the message to the chat as if the user asked for it
+                addMessage("What's the shortest gym and how long would it take to walk there?", 'user');
+                addMessage(message + ` <button onclick="previewRoute('${name.replace(/'/g, "\\'")}')">Preview Route</button>`, 'bot');
+            } else {
+                alert("Could not determine the shortest gym. Please try searching again.");
+            }
+        }
+        
+        // Function to preview the route to a gym
+        function previewRoute(gymName) {
+            // Encode the gym name for use in the URL
+            const encodedName = encodeURIComponent(gymName);
+            const routeUrl = `/static/${encodedName}_walking_route.html`;
+            
+            // Open the route in a new tab
+            window.open(routeUrl, '_blank');
+        }
+        
+        // Function to show all available routes
+        function showAllRoutes() {
+            if (!window.gymsData || window.gymsData.length === 0) {
+                alert("No gyms found. Please search for gyms first.");
+                return;
+            }
+            
+            // Create a modal dialog to display all routes
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.left = '0';
+            modal.style.top = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = 'white';
+            modalContent.style.padding = '20px';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.maxWidth = '80%';
+            modalContent.style.maxHeight = '80%';
+            modalContent.style.overflow = 'auto';
+            
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close';
+            closeButton.style.float = 'right';
+            closeButton.style.padding = '5px 10px';
+            closeButton.style.backgroundColor = '#f44336';
+            closeButton.style.color = 'white';
+            closeButton.style.border = 'none';
+            closeButton.style.borderRadius = '5px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.onclick = function() {
+                document.body.removeChild(modal);
+            };
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Available Walking Routes';
+            title.style.marginTop = '0';
+            
+            const routesList = document.createElement('div');
+            
+            // Add each gym with a preview button
+            window.gymsData.forEach(gym => {
+                let name;
+                
+                if (typeof gym === 'object' && gym.name) {
+                    name = gym.name;
+                } else if (Array.isArray(gym)) {
+                    name = gym[0];
+                }
+                
+                const gymItem = document.createElement('div');
+                gymItem.style.padding = '10px';
+                gymItem.style.margin = '10px 0';
+                gymItem.style.backgroundColor = '#f5f5f5';
+                gymItem.style.borderRadius = '5px';
+                gymItem.style.display = 'flex';
+                gymItem.style.justifyContent = 'space-between';
+                gymItem.style.alignItems = 'center';
+                
+                const gymName = document.createElement('div');
+                gymName.textContent = name || 'Unnamed Gym';
+                gymName.style.fontWeight = 'bold';
+                
+                const previewButton = document.createElement('button');
+                previewButton.textContent = 'Preview Route';
+                previewButton.style.backgroundColor = '#4CAF50';
+                previewButton.style.color = 'white';
+                previewButton.style.border = 'none';
+                previewButton.style.padding = '5px 10px';
+                previewButton.style.borderRadius = '5px';
+                previewButton.style.cursor = 'pointer';
+                previewButton.onclick = function() {
+                    previewRoute(name);
+                };
+                
+                gymItem.appendChild(gymName);
+                gymItem.appendChild(previewButton);
+                routesList.appendChild(gymItem);
+            });
+            
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(title);
+            modalContent.appendChild(routesList);
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+    </script>
+    
+    <!-- Activity Prediction JavaScript -->
+    <script>
+        // Elements
+        const startPredictionsBtn = document.getElementById('start-predictions');
+        const stopPredictionsBtn = document.getElementById('stop-predictions');
+        const predictionStatus = document.getElementById('prediction-status');
+        const currentRow = document.getElementById('current-row');
+        const currentActivity = document.getElementById('current-activity');
+        const caloriesBurned = document.getElementById('calories-burned');
+        const historyList = document.getElementById('history-list');
+        
+        // Global variables
+        let predictionEventSource = null;
+        let totalCalories = 0;
+        let predictionCount = 0;
+        
+        // Start streaming predictions
+        startPredictionsBtn.addEventListener('click', function() {
+            // Clear previous history
+            historyList.innerHTML = '';
+            totalCalories = 0;
+            predictionCount = 0;
+            
+            // Update UI
+            predictionStatus.textContent = 'Connecting...';
+            startPredictionsBtn.disabled = true;
+            stopPredictionsBtn.disabled = false;
+            
+            // Connect to the streaming endpoint
+            predictionEventSource = new EventSource('/stream_predictions');
+            
+            // Handle incoming prediction data
+            predictionEventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                // Check if this is the completion message (should not happen with continuous streaming)
+                if (data.status === 'complete') {
+                    return; // Just ignore it and continue
+                }
+                
+                // Update the current prediction display
+                predictionStatus.textContent = 'Streaming';
+                currentRow.textContent = data.row;
+                currentActivity.textContent = data.prediction;
+                
+                // Update calories
+                totalCalories += data.calories;
+                caloriesBurned.textContent = totalCalories.toFixed(4);
+                
+                // Add to history
+                addPredictionToHistory(data);
+                
+                // Increment prediction count
+                predictionCount++;
+            };
+            
+            // Handle errors
+            predictionEventSource.onerror = function(error) {
+                console.error('EventSource error:', error);
+                predictionStatus.textContent = 'Error';
+                stopPredictions();
+            };
+        });
+        
+        // Stop streaming predictions
+        stopPredictionsBtn.addEventListener('click', stopPredictions);
+        
+        function stopPredictions() {
+            if (predictionEventSource) {
+                predictionEventSource.close();
+                predictionEventSource = null;
+            }
+            
+            startPredictionsBtn.disabled = false;
+            stopPredictionsBtn.disabled = true;
+            
+            if (predictionStatus.textContent !== 'Complete' && 
+                predictionStatus.textContent !== 'Error') {
+                predictionStatus.textContent = 'Stopped';
+            }
+        }
+        
+        function addPredictionToHistory(data) {
+            // Create history item
+            const historyItem = document.createElement('div');
+            historyItem.className = `history-item activity-${data.prediction.toLowerCase()}`;
+            
+            // Format the content
+            historyItem.innerHTML = `
+                <div>
+                    <strong>Row ${data.row}:</strong> ${data.prediction}
+                </div>
+                <div>
+                    ${data.calories.toFixed(4)} kcal
+                </div>
+            `;
+            
+            // Add to history list at the top
+            if (historyList.firstChild) {
+                historyList.insertBefore(historyItem, historyList.firstChild);
+            } else {
+                historyList.appendChild(historyItem);
+            }
+            
+            // Limit history items to 20
+            if (historyList.children.length > 20) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+    </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
